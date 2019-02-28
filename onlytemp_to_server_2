@@ -26,7 +26,8 @@
   DeviceAddress sensor9 = {0x28, 0x24, 0xCE, 0x77, 0x91, 0x9, 0x2, 0x57};
   DeviceAddress sensor10 = {0x28, 0xCA, 0x6E, 0x77, 0x91, 0x10, 0x2, 0x0};
   
-  int address = 8;
+  int address = 8, x=0;
+  float rz=0, h=0;
   
   void get_s(int a, int b)
   {
@@ -36,6 +37,7 @@
           /*Serial.print("\n G  "+String(b)+":\n");
           Serial.println(a);                     
           Serial.println("GET start.");*/
+          delay(100);
           client.println("GET /FPGAdev/api/Values/sendDatas?value="+String(a)+"&type="+String(b)+"&device=9 HTTP/1.1");
           client.println("Host: 95.161.225.76");
           client.println("User-Agent: arduino-ethernet");
@@ -62,11 +64,9 @@
         Serial.println();
         Serial.println();
         Serial.print("Connecting to ");
-        Serial.println(ssid);
-        
+        Serial.println(ssid);        
         WiFi.mode(WIFI_STA);
-        WiFi.begin(ssid, password);
-        
+        WiFi.begin(ssid, password);        
         while (WiFi.status() != WL_CONNECTED)
         {
           delay(500);
@@ -80,44 +80,45 @@
     
     void loop() 
     {
-      int x=0;
+      x=0;
       ds.requestTemperatures();        
-                  
+      delay(100);            
       x=ds.getTempC(sensor1);         
       get_s(x,1);    
-  
+      delay(10);
       x=ds.getTempC(sensor2);          
       get_s(x,2);     
-  
+      delay(10);
       x=ds.getTempC(sensor3);           
       get_s(x,3);      
-  
+      delay(10);
       x=ds.getTempC(sensor4);         
       get_s(x,4);      
-  
+      delay(10);
       x=ds.getTempC(sensor5);         
       get_s(x,5);
-     
+      delay(10);
       x=ds.getTempC(sensor6);         
       get_s(x,6);
-    
+      delay(10);
       x=ds.getTempC(sensor7);           
       get_s(x,7);
-     
+      delay(10);
       x=ds.getTempC(sensor8);          
       get_s(x,8);
-     
+      delay(10);
       x=ds.getTempC(sensor9);          
       get_s(x,9);
-     
+      delay(10);
       x=ds.getTempC(sensor10);          
       get_s(x,10);           
-     
-      float rz = analogRead(A0);
+      delay(10);
+      rz = analogRead(A0);
       get_s(rz,11);
-      
-      float h = dht.readHumidity();
+      delay(10);
+      h = dht.readHumidity();
       get_s(h,12);           
-                         
+      h=0;
+      rz=0;                   
       delay(25000);
     }
