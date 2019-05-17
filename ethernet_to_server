@@ -1,0 +1,69 @@
+#include <Ethernet.h>
+#include <SPI.h>
+#include "DHT.h"
+#define DHTPIN 7
+
+byte mac[] = { 0xDE, 0xAD, 0xBC, 0xEA, 0xFA, 0xFC };
+byte ip[] = { 192, 168, 1, 120 };
+byte server[] = { 95, 161, 225, 76 }; 
+float k2=0, a=0, b=0, co2=0;
+
+EthernetClient client;
+DHT dht(DHTPIN, DHT11);
+
+void get_z(float a2, int b2, int k22)
+{
+  if (client.connect(server, 80)) {
+      Serial.println("connected");
+      client.println("GET /FPGAdev/api/Values/sendDatas?value="+String(a2)+"&type="+String(b2)+"&device=111&step="+k22+" HTTP/1.1");
+            client.println("Host: 95.161.225.76");
+            client.println("User-Agent: arduino-ethernet");
+            client.println("Connection: close");
+            client.println();
+    } 
+  else {
+    Serial.println("connection failed");
+  }
+}
+
+void setup()
+{
+  Ethernet.begin(mac, ip);
+  Serial.begin(9600);
+
+  delay(1000);
+  dht.begin();
+  pinMode(A0, INPUT);
+  Serial.println("connecting...");
+  
+}
+
+void loop()
+{
+  b = dht.readTemperature();
+  if (isnan(b)) {
+      return;
+  }  
+  get_z(b,1,k2);
+  delay(1000);  
+  a = dht.readHumidity();
+  if (isnan(a)) {
+      return;
+  } 
+  get_z(a,2,k2);
+  delay(1000);
+  co2 = analogRead(A0);
+  if (isnan(co2)) {
+      return;
+  }
+  get_z(co2,3,k2);
+
+   if(co2>150){
+   digitalWrite(soundPin,1);
+
+   delay(5000);
+   }
+    
+  k2++;  
+  delay(1000);
+}
