@@ -1,0 +1,108 @@
+// библиотека для работы с датчиками MQ 
+#include <TroykaMQ.h>
+
+#define INTERVAL_GET_DATA 3000  // интервала измерений, мс 
+// пин, к которому подключен датчик
+#define MQ2PIN A0
+#define MQ7PIN A1
+#define PIN_MQ135 A2
+// создаём объект для работы с датчиком и передаём ему номер пина
+MQ135 mq135(PIN_MQ135);
+// создаём объект для работы с датчиком
+MQ2 mq2(MQ2PIN);
+
+// создаём объект для работы с датчиком
+MQ7 mq7(MQ7PIN);
+// переменная для интервала измерений
+unsigned long millis_int1=0;
+ 
+void setup() {
+  // открываем последовательный порт
+  Serial.begin(9600);
+  // калибровка
+  mq2.calibrate();
+  mq2.getRo();
+   mq7.calibrate();
+  mq7.getRo();
+   mq135.calibrate();
+  // при знании сопративления датчика на чистом воздухе
+  // можно его указать вручную, допустим 160
+  // mq135.calibrate(160);
+  // выводим сопротивление датчика в чистом воздухе (Ro) в serial-порт
+  Serial.print("Ro = ");
+  Serial.println(mq135.getRo());
+}
+ 
+void loop() {
+   if(millis()-millis_int1 >= INTERVAL_GET_DATA) {
+      // получение данных c датчика mq2
+      int  propan= get_data_ppmpropan();
+      // выводим значения газа в ppm
+      Serial.print("propan=");
+      Serial.print(propan);
+      Serial.println(" ppm ");
+      int  methan= get_data_ppmmethan();
+      // выводим значения газа в ppm
+      Serial.print("methan=");
+      Serial.print(methan);
+      Serial.println(" ppm ");
+      int  smoke= get_data_ppmsmoke();
+      // выводим значения газа в ppm
+      Serial.print("smoke=");
+      Serial.print(smoke);
+      Serial.println(" ppm ");
+      // старт интервала отсчета
+     
+
+      int  carbonmonoxide= get_data_ppmcarbonmonoxide();
+      // выводим значения газа в ppm
+      Serial.print("CO=");
+      Serial.print(carbonmonoxide);
+      Serial.println(" ppm ");
+
+     // Serial.print("CO2: ");
+//  Serial.println(mq135.readRatio());
+  // выводим значения газов в ppm
+  Serial.print("CO2: ");
+  Serial.print(mq135.readCO2());
+  Serial.println(" ppm \n");
+       millis_int1=millis();
+   }
+}
+
+// получение данных содержания пропана с датчика MQ2
+float get_data_ppmpropan()  {
+
+  //Serial.println(mq2.readRatio());
+  // получение значения 
+  float value=mq2.readLPG();
+  
+  return value;
+}
+// получение данных содержания метана с датчика MQ2
+float get_data_ppmmethan()  {
+
+  //Serial.println(mq2.readRatio());
+  // получение значения 
+  float value=mq2.readMethane();
+  
+  return value;
+}
+// получение данных содержания дыма с датчика MQ2
+float get_data_ppmsmoke()  {
+
+  //Serial.println(mq2.readRatio());
+  // получение значения 
+  float value=mq2.readSmoke();
+  
+  return value;
+}
+
+float get_data_ppmcarbonmonoxide()  {
+
+  //Serial.println(mq7.readRatio());
+  // получение значения 
+  float value=mq7.readCarbonMonoxide();
+  
+  return value;
+}
